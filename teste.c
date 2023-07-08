@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include "grafo.h"
 #include "leituras.h"
 
 void imprimirLista(ListaLocais* lista) {
@@ -19,7 +20,6 @@ void imprimirLista(ListaLocais* lista) {
 
 void imprimirArestas(ListaArestas* listaarestas) {
     ListaArestas* atual = listaarestas;
-    printf("Chegou aqui");
     while (atual != NULL) {
         printf("Origem: %s\n", atual->aresta->origem);
         printf("Destino: %s\n", atual->aresta->destino);
@@ -30,13 +30,29 @@ void imprimirArestas(ListaArestas* listaarestas) {
     }
 }
 
+void imprimirGrafo (Grafo *grafo) {
+    int i, j;
+    for (i = 0; i < grafo->numVertices; i++) {
+        printf("%s: ", grafo->vertices[i].nome);
+        for (j = 0; j < grafo->numVertices; j++) {
+            if (grafo->matriz[i][j] != 0) {
+                printf("%s (%lf) ", grafo->vertices[j].nome, grafo->matriz[i][j]);
+            }
+        }
+        printf("\n");
+    }
+}
+
 int main() {
     ListaLocais* lista = NULL;
     ListaArestas* listaarestas = NULL;
+    Grafo* grafo = g_cria(0, true);
     lerArquivoVertices(&lista, "locais.csv"); //inicializa a lista de locais e armazena todo conteudo do arquivo nela
     lerArquivoArestas(&listaarestas, "caminhos.csv", lista); //inicializa a lista de arestas e armazena todo conteudo do arquivo nela
     imprimirLista(lista);
     imprimirArestas(listaarestas);
+
+    imprimirGrafo(grafo);
 
     // Liberar memória alocada para a lista de locais
     ListaLocais* atual = lista;
