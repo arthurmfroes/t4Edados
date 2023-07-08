@@ -154,39 +154,41 @@ void lerArquivoArestas(ListaArestas** listaAresta, const char* nomeArquivo, List
     fclose(arquivo);
 }
 
-void atualizarDistancia (ListaArestas** no, ListaLocais* listaLocais) {
+void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais) {
     ListaLocais* aux = listaLocais;
     double distanciaCalculada = 0.0;
     double lat1, lon1, lat2, lon2;
     lat1 = lon1 = lat2 = lon2 = 0.0;
 
     while (aux != NULL) {
-        if (strcmp((*no)->aresta->origem, aux->local->nome) == 0) {
+        if (strcmp(aresta->origem, aux->local->nome) == 0) {
             lat1 = aux->local->latitude;
             lon1 = aux->local->longitude;
-        } 
-        if (strcmp((*no)->aresta->destino, aux->local->nome) == 0) {
+        }
+        if (strcmp(aresta->destino, aux->local->nome) == 0) {
             lat2 = aux->local->latitude;
             lon2 = aux->local->longitude;
         }
         aux = aux->prox;
     }
-        // Converter as coordenadas de graus para radianos
-        double lat1Rad = lat1 * M_PI / 180.0;
-        double lon1Rad = lon1 * M_PI / 180.0;
-        double lat2Rad = lat2 * M_PI / 180.0;
-        double lon2Rad = lon2 * M_PI / 180.0;
-
-        // Calcular a diferença entre as latitudes e longitudes
-        double dLat = lat2Rad - lat1Rad;
-        double dLon = lon2Rad - lon1Rad;
-
-        // Aplicar a fórmula de haversine
-        double a = sin(dLat/2) * sin(dLat/2) + cos(lat1Rad) * cos(lat2Rad) * sin(dLon/2) * sin(dLon/2);
-        double c = 2 * atan2(sqrt(a), sqrt(1-a));
-        double distancia = R * c;
-
-        distanciaCalculada += distancia * 1000.0;  // Converter para metros
-
-    (*no)->aresta->distancia = distanciaCalculada;
+    
+    // Converter as coordenadas de graus para radianos
+    double lat1Rad = lat1 * M_PI / 180.0;
+    double lon1Rad = lon1 * M_PI / 180.0;
+    double lat2Rad = lat2 * M_PI / 180.0;
+    double lon2Rad = lon2 * M_PI / 180.0;
+    
+    // Calcular a diferença entre as latitudes e longitudes
+    double dLat = lat2Rad - lat1Rad;
+    double dLon = lon2Rad - lon1Rad;
+    
+    // Aplicar a fórmula de haversine
+    double a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1Rad) * cos(lat2Rad) * sin(dLon / 2) * sin(dLon / 2);
+    double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    double distancia = R * c;
+    
+    distanciaCalculada += distancia * 1000.0; // Converter para metros
+    
+    aresta->distancia = distanciaCalculada;
 }
+
