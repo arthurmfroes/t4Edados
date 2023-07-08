@@ -23,12 +23,12 @@ typedef struct arestas {
 
 typedef struct listaarestas {
     Arestas* aresta;
-    struct ListaArestas* prox;
-    struct ListaArestas* ant;
+    struct listaarestas* prox;
+    struct listaarestas* ant;
 } ListaArestas;
 
-void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo);
-void lerArquivoArestas(ListaArestas** lista, const char* nomeArquivol, ListaLocais* listaLocais);
+void lerArquivoVertices(ListaLocais** listaLocais, const char* nomeArquivo);
 void atualizarDistancia (ListaArestas** no, ListaLocais* listaLocais);
+void lerArquivoArestas(ListaArestas** listaArestas, const char* nomeArquivo, ListaLocais* listaLocais);
 
 #endif  // LEITURAS_H

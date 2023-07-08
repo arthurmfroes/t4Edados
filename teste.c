@@ -19,7 +19,7 @@ void imprimirLista(ListaLocais* lista) {
 
 void imprimirArestas(ListaArestas* listaarestas) {
     ListaArestas* atual = listaarestas;
-
+    printf("Chegou aqui");
     while (atual != NULL) {
         printf("Origem: %s\n", atual->aresta->origem);
         printf("Destino: %s\n", atual->aresta->destino);

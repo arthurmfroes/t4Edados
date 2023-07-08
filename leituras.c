@@ -77,12 +77,10 @@ void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo) {
 }
 
 // Função para ler e armazenar a lista de caminhos
-void lerArquivoArestas(ListaArestas** lista, const char* nomeArquivol, ListaLocais* listaLocais) {
-    FILE* arquivo;
+void lerArquivoArestas(ListaArestas** listaAresta, const char* nomeArquivo, ListaLocais* listaLocais) {
     char linha[100];
-
     // Abre o arquivo de caminhos
-    arquivo = fopen("caminhos.txt", "r");
+    FILE* arquivo = fopen(nomeArquivo, "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return;
@@ -138,12 +136,12 @@ void lerArquivoArestas(ListaArestas** lista, const char* nomeArquivol, ListaLoca
         novoNo->ant = NULL;
 
         // Insere o novo nó na lista
-        if (*lista == NULL) {
+        if (*listaAresta == NULL) {
             // Se a lista estiver vazia, o novo nó será o primeiro e o último
-            *lista = novoNo;
+            *listaAresta = novoNo;
         } else {
             // Caso contrário, insere o novo nó no final da lista
-            ListaArestas* ultimo = *lista;
+            ListaArestas* ultimo = *listaAresta;
             while (ultimo->prox != NULL) {
                 ultimo = ultimo->prox;
             }
