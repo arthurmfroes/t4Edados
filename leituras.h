@@ -28,5 +28,7 @@ typedef struct listaarestas {
 } ListaArestas;
 
 void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo);
+void lerArquivoArestas(ListaArestas** lista, const char* nomeArquivol, ListaLocais* listaLocais);
+void atualizarDistancia (ListaArestas** no, ListaLocais* listaLocais);
 
 #endif  // LEITURAS_H

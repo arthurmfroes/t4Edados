@@ -25,6 +25,7 @@ Grafo *g_cria(int n, bool orientado){
         }
     }
     self->orientado = orientado;
+    self->nvertices = n;
     return self;
 }
 

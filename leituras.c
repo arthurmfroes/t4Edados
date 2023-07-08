@@ -1,9 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "leituras.h"
 
+#define M_PI 3.14159265358979323846
 #define TAM_MAX_LINHA 90
+#define R 6371.0
 
 void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo) {
     FILE* arquivo = fopen(nomeArquivo, "r");
@@ -74,7 +77,7 @@ void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo) {
 }
 
 // Função para ler e armazenar a lista de caminhos
-void lerListaCaminhos(ListaArestas** lista, const char* nomeArquivol, ListaLocais* listaLocais) {
+void lerArquivoArestas(ListaArestas** lista, const char* nomeArquivol, ListaLocais* listaLocais) {
     FILE* arquivo;
     char linha[100];
 
@@ -116,6 +119,8 @@ void lerListaCaminhos(ListaArestas** lista, const char* nomeArquivol, ListaLocai
         // Inicializa a distância como 0
         novaAresta->distancia = 0.0;
 
+        atualizarDistancia(novaAresta, listaLocais);
+
         // Cria um novo nó da lista
         ListaArestas* novoNo = (ListaArestas*)malloc(sizeof(ListaArestas));
         if (novoNo == NULL) {
@@ -145,7 +150,6 @@ void lerListaCaminhos(ListaArestas** lista, const char* nomeArquivol, ListaLocai
             ultimo->prox = novoNo;
             novoNo->ant = ultimo;
         }
-        atualizarDistancia(novoNo, listaLocais);
     }
 
     // Fecha o arquivo
@@ -155,14 +159,36 @@ void lerListaCaminhos(ListaArestas** lista, const char* nomeArquivol, ListaLocai
 void atualizarDistancia (ListaArestas** no, ListaLocais* listaLocais) {
     ListaLocais* aux = listaLocais;
     double distanciaCalculada = 0.0;
+    double lat1, lon1, lat2, lon2;
+    lat1 = lon1 = lat2 = lon2 = 0.0;
+
     while (aux != NULL) {
         if (strcmp((*no)->aresta->origem, aux->local->nome) == 0) {
-            //inserir formula para calcular distancia utilizando hipotenusa
-        }
+            lat1 = aux->local->latitude;
+            lon1 = aux->local->longitude;
+        } 
         if (strcmp((*no)->aresta->destino, aux->local->nome) == 0) {
-            //inserir formula para calcular distancia utilizando hipotenusa
+            lat2 = aux->local->latitude;
+            lon2 = aux->local->longitude;
         }
         aux = aux->prox;
     }
+        // Converter as coordenadas de graus para radianos
+        double lat1Rad = lat1 * M_PI / 180.0;
+        double lon1Rad = lon1 * M_PI / 180.0;
+        double lat2Rad = lat2 * M_PI / 180.0;
+        double lon2Rad = lon2 * M_PI / 180.0;
+
+        // Calcular a diferença entre as latitudes e longitudes
+        double dLat = lat2Rad - lat1Rad;
+        double dLon = lon2Rad - lon1Rad;
+
+        // Aplicar a fórmula de haversine
+        double a = sin(dLat/2) * sin(dLat/2) + cos(lat1Rad) * cos(lat2Rad) * sin(dLon/2) * sin(dLon/2);
+        double c = 2 * atan2(sqrt(a), sqrt(1-a));
+        double distancia = R * c;
+
+        distanciaCalculada += distancia * 1000.0;  // Converter para metros
+
     (*no)->aresta->distancia = distanciaCalculada;
 }
