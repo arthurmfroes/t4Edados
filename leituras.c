@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "leituras.h"
+#include "grafo.h"
 
 #define M_PI 3.14159265358979323846
 #define TAM_MAX_LINHA 90
@@ -192,3 +193,19 @@ void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais) {
     aresta->distancia = distanciaCalculada;
 }
 
+void insereListasNoGrafo (Grafo** grafo, ListaLocais* listaLocais, ListaArestas* listaArestas) {
+    int id1, id2;
+    while (listaArestas != NULL) {
+        while (listaLocais != NULL) {
+            if (strcmp(listaArestas->aresta->origem, listaLocais->local->nome) == 0) {
+                id1 = listaLocais->local->id;
+            }
+            if (strcmp(listaArestas->aresta->destino, listaLocais->local->nome) == 0) {
+                id2 = listaLocais->local->id;
+            }
+            g_ins_aresta(grafo, id1, id2, listaArestas->aresta->distancia);
+            listaLocais = listaLocais->prox;
+        }
+        listaArestas = listaArestas->prox;
+    }
+}
