@@ -3,18 +3,26 @@
 
 #include <stdbool.h>
 
+#define MAX_VERTICES 50
+
+typedef struct _grafo {
+    float matriz_arestas[MAX_VERTICES][MAX_VERTICES];
+    bool orientado;
+    int nvertices;
+};
+
 typedef struct _grafo *Grafo;
 
 // aloca e inicializa um grafo com n vértices
 // o grafo pode ser orientado ou não (afeta o processamento das arestas)
 // retorna um ponteiro para o grafo alocado
-Grafo *g_cria(int n, bool orientado);
+Grafo g_cria(int n, bool orientado);
 
 // libera a memória usada pelo grafo
-void *g_destroi(Grafo *self);
+void g_destroi(Grafo self);
 
 // retorna o número de vértices do grafo
-int g_nvertices(Grafo *self);
+int g_nvertices(Grafo self);
 
 // insere uma aresta no grafo (ou altera o peso de uma aresta já existente)
 void g_ins_aresta(Grafo self, int origem, int destino, float peso);
@@ -30,10 +38,13 @@ void g_arestas(Grafo self);
 // as próximas chamadas à g_proxima_aresta devem retornar cada aresta do grafo que parte do vértice origem
 void g_arestas_que_partem(Grafo self, int origem);
 
+
+
 // retorna os dados sobre a próxima aresta de uma consulta
 // retorna true se ok ou false se não tem mais arestas ou se não foi iniciada uma consulta
 // cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
 bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso);
+
 
 #endif // GRAFO_H

@@ -1,6 +1,8 @@
 #ifndef LEITURAS_H
 #define LEITURAS_H
 
+#include "grafo.h"
+
 typedef struct locais {
     int id;
     char* nome;
@@ -27,8 +29,9 @@ typedef struct listaarestas {
     struct listaarestas* ant;
 } ListaArestas;
 
-void lerArquivoVertices(ListaLocais** listaLocais, const char* nomeArquivo);
+void lerArquivoVertices(ListaLocais** listaLocais, const char* nomeArquivo, Grafo self);
 void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais);
 void lerArquivoArestas(ListaArestas** listaArestas, const char* nomeArquivo, ListaLocais* listaLocais);
+void insereListasNoGrafo(Grafo grafo, ListaLocais* listaLocais, ListaArestas* listaArestas);
 
 #endif  // LEITURAS_H

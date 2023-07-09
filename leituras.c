@@ -3,13 +3,12 @@
 #include <string.h>
 #include <math.h>
 #include "leituras.h"
-#include "grafo.h"
 
 #define M_PI 3.14159265358979323846
 #define TAM_MAX_LINHA 90
 #define R 6371.0
 
-void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo) {
+void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo, Grafo self) {
     FILE* arquivo = fopen(nomeArquivo, "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
@@ -73,7 +72,7 @@ void lerArquivoVertices(ListaLocais** lista, const char* nomeArquivo) {
             ultimo->prox = novoNo;
         }
     }
-
+    self->nvertices = id;
     fclose(arquivo);
 }
 
@@ -105,6 +104,14 @@ void lerArquivoArestas(ListaArestas** listaAresta, const char* nomeArquivo, List
 
         strncpy(novaAresta->origem, linha, 4);
         novaAresta->origem[4] = '\0';
+
+        if (novaAresta->origem[3] == ',') {
+            novaAresta->origem[3] = '\0';
+        }
+        if (novaAresta->origem[2] == ',') {
+            novaAresta->origem[2] = '\0';
+            novaAresta->origem[3] = '\0';
+        }
 
         // Encontra a posição da vírgula
         char* virgula = strchr(linha, ',');
@@ -193,19 +200,32 @@ void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais) {
     aresta->distancia = distanciaCalculada;
 }
 
-void insereListasNoGrafo (Grafo** grafo, ListaLocais* listaLocais, ListaArestas* listaArestas) {
+
+void insereListasNoGrafo(Grafo grafo, ListaLocais* listaLocais, ListaArestas* listaArestas) {
     int id1, id2;
     while (listaArestas != NULL) {
-        while (listaLocais != NULL) {
-            if (strcmp(listaArestas->aresta->origem, listaLocais->local->nome) == 0) {
-                id1 = listaLocais->local->id;
+        id1 = -1; // Initialize id1
+        id2 = -1; // Initialize id2
+
+        // Find id1 and id2 in listaLocais
+        ListaLocais* temp = listaLocais;
+        while (temp != NULL) {
+            if (strcmp(listaArestas->aresta->origem, temp->local->nome) == 0) {
+                id1 = temp->local->id;
             }
-            if (strcmp(listaArestas->aresta->destino, listaLocais->local->nome) == 0) {
-                id2 = listaLocais->local->id;
+            if (strcmp(listaArestas->aresta->destino, temp->local->nome) == 0) {
+                id2 = temp->local->id;
             }
-            g_ins_aresta(grafo, id1, id2, listaArestas->aresta->distancia);
-            listaLocais = listaLocais->prox;
+            temp = temp->prox;
         }
+
+        // If both id1 and id2 are found, insert the edge into the grafo
+        if (id1 != -1 && id2 != -1) {
+            g_ins_aresta(grafo, id1, id2, listaArestas->aresta->distancia);
+            g_ins_aresta(grafo, id2, id1, listaArestas->aresta->distancia);
+        }
+
         listaArestas = listaArestas->prox;
     }
 }
+
