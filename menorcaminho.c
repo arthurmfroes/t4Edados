@@ -15,9 +15,7 @@
 
 // imprimir menor caminho em arquivo
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#define INFINITY 999999
 
 
 void lerArquivoTexto(const char *nomeArquivo, char **linhas) {
@@ -61,7 +59,7 @@ void criarVetorDeVisitas(char **linhas, ListaLocais *listalocais, int visitas[MA
         }
 }
 
-void dijkstra(Grafo g, ListaLocais* lv, Vertice_Info info[]){
+void dijkstra(Grafo self, ListaLocais* listaLocais){
     int i, j;
     char *linhas_Visitadas[MAX_VISITAS];
     int vetor_visitas[MAX_VISITAS];
@@ -71,7 +69,7 @@ void dijkstra(Grafo g, ListaLocais* lv, Vertice_Info info[]){
     printf("saiu do ler arquivo\n");
 
     for (int i = 0; i < MAX_VISITAS; i++) {
-            ListaLocais *lista = lv;
+            ListaLocais *lista = listaLocais;
             while (lista != NULL) {
                 if (strcmp(lista->local->nome, linhas_Visitadas[i]) == 0) {
                     vetor_visitas[i] = lista->local->id;
@@ -81,48 +79,111 @@ void dijkstra(Grafo g, ListaLocais* lv, Vertice_Info info[]){
                 lista = lista->prox; }
             }
     }
+    printf("saiu do vetor de visitas\n");
+
+    dijkstraCalcula(self, vetor_visitas[0], vetor_visitas[1], vetor_visitas[2], listaLocais);
+
+  
+}
 
 
-    int num_vertices = g->nvertices;
+void dijkstraCalcula(Grafo g, int origem, int intermediario, int destino, ListaLocais* listaLocais) {
+    float distancias[MAX_VERTICES];
+    int predecessores[MAX_VERTICES];
+    bool visitados[MAX_VERTICES];
 
-    for(i = 0; i < num_vertices; i++){
-        printf("Entrou no primeiro for");
-        info[i].predecessor = -1;
-        info[i].distancia = INT_MAX;
-        info[i].visitado = 0;
+    // Inicializa os arrays de distâncias, predecessores e visitados
+    for (int i = 0; i < g->nvertices; i++) {
+        distancias[i] = INFINITY;
+        predecessores[i] = -1;
+        visitados[i] = false;
     }
 
-    int origem = vetor_visitas[0];
-    info[origem].distancia = 0;
+    // Define a distância da origem como 0
+    distancias[origem] = 0;
 
-    for(i = 0; i < num_vertices; i++){
-        printf("Entrou no segundo for");
-        int menor_Dist = INT_MAX;
-        int menor_Vertice = -1;
+    // Loop principal
+    for (int i = 0; i < g->nvertices - 1; i++) {
+        // Encontra o vértice não visitado com a menor distância
+        int u = -1;
+        float menor_distancia = INFINITY;
 
-        for(j = 0; j < num_vertices; j++){
-            if(!info[j].visitado && info[j].distancia < menor_Dist){
-                menor_Dist = info[j].distancia;
-                menor_Vertice = j;
+        for (int j = 0; j < g->nvertices; j++) {
+            if (!visitados[j] && distancias[j] < menor_distancia) {
+                u = j;
+                menor_distancia = distancias[j];
             }
         }
-        if(menor_Vertice == -1) break;
 
-        info[menor_Vertice].visitado = 1;
+        // Marca o vértice como visitado
+        visitados[u] = true;
 
-        for(j = 0; j < num_vertices; j++){
-            if(g->matriz_arestas[menor_Vertice][j] > 0){
-                int alt = info[menor_Vertice].distancia + g->matriz_arestas[menor_Vertice][j];
-
-                if(alt < info[j].distancia){
-                    info[j].distancia = alt;
-                    info[j].predecessor = menor_Vertice;
-                }
+        // Atualiza as distâncias dos vértices adjacentes ao vértice atual
+        for (int v = 0; v < g->nvertices; v++) {
+            if (!visitados[v] && g->matriz_arestas[u][v] > 0 && distancias[u] + g->matriz_arestas[u][v] < distancias[v]) {
+                distancias[v] = distancias[u] + g->matriz_arestas[u][v];
+                predecessores[v] = u;
             }
-        }        
+        }
     }
-    printf("Teste");
-    for(i = 0; i < num_vertices; i++){
-        printf("Vertice: %s, Distancia: %d\n", lv[i].local->nome, info[i].distancia);
+
+    // Verifica se o caminho entre origem, intermediário e destino existe
+    if (distancias[intermediario] == INFINITY || distancias[destino] == INFINITY) {
+        printf("Caminho inexistente.\n");
+        return;
     }
-}  
+
+    // Constrói o caminho entre origem, intermediário e destino
+    int caminho[MAX_VERTICES];
+    int contador = 0;
+    int atual = destino;
+
+    while (atual != -1) {
+        caminho[contador] = atual;
+        atual = predecessores[atual];
+        contador++;
+    }
+
+    // Imprime o menor caminho
+    printf("Menor caminho: \n");
+
+    printf("[MAP]\n");
+
+        ListaLocais *listaAtual = listaLocais;
+        while (listaAtual != NULL) {
+            if (listaAtual->local->id == caminho[0]) {
+                printf("%lf,", listaAtual->local->latitude);
+                printf("%lf", listaAtual->local->longitude);
+                printf("(%s)", listaAtual->local->nome);
+                printf(";\n");
+                break;
+            }
+            listaAtual = listaAtual->prox;
+        }
+    
+    for (int i = 0; i < contador; i++) {
+        ListaLocais *listaAtual = listaLocais;
+        while (listaAtual != NULL) {
+            if (listaAtual->local->id == caminho[i]) {
+                printf("%lf,", listaAtual->local->latitude);
+                printf("%lf ", listaAtual->local->longitude);
+                break;
+            }
+            listaAtual = listaAtual->prox;
+        }
+    }
+        ListaLocais *listaAtual = listaLocais;
+        while (listaAtual != NULL) {
+            if (listaAtual->local->id == caminho[contador - 1]) {
+                printf("%lf,", listaAtual->local->latitude);
+                printf("%lf", listaAtual->local->longitude);
+                printf("(%s)", listaAtual->local->nome);
+                printf(";\n");
+                break;
+            }
+            listaAtual = listaAtual->prox;
+        }
+    
+}
+
+
