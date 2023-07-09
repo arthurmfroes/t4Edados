@@ -61,21 +61,68 @@ void criarVetorDeVisitas(char **linhas, ListaLocais *listalocais, int visitas[MA
         }
 }
 
-void determinaMenorCaminho(Grafo self, ListaLocais* listalocais) {
-    char *linhaslidas[MAX_VISITAS];
-    int visitas[MAX_VISITAS];
-    int i;
+void dijkstra(Grafo g, ListaLocais* lv, Vertice_Info info[]){
+    int i, j;
+    char *linhas_Visitadas[MAX_VISITAS];
+    int vetor_visitas[MAX_VISITAS];
 
+    lerArquivoTexto("visita.csv", linhas_Visitadas);
 
-    // Chame a função para ler o arquivo
-    lerArquivoTexto("visita.csv", linhaslidas);
+    printf("saiu do ler arquivo\n");
 
-    criarVetorDeVisitas(linhaslidas, listalocais, visitas);
-
-    for (i = 0; i < MAX_VISITAS; i++) {
-        printf("%d\n", visitas[i]);
+    for (int i = 0; i < MAX_VISITAS; i++) {
+            ListaLocais *lista = lv;
+            while (lista != NULL) {
+                if (strcmp(lista->local->nome, linhas_Visitadas[i]) == 0) {
+                    vetor_visitas[i] = lista->local->id;
+                    printf("id: %d\n", vetor_visitas[i]);
+                    break;
+                } else {
+                lista = lista->prox; }
+            }
     }
 
-}
 
+    int num_vertices = g->nvertices;
 
+    for(i = 0; i < num_vertices; i++){
+        printf("Entrou no primeiro for");
+        info[i].predecessor = -1;
+        info[i].distancia = INT_MAX;
+        info[i].visitado = 0;
+    }
+
+    int origem = vetor_visitas[0];
+    info[origem].distancia = 0;
+
+    for(i = 0; i < num_vertices; i++){
+        printf("Entrou no segundo for");
+        int menor_Dist = INT_MAX;
+        int menor_Vertice = -1;
+
+        for(j = 0; j < num_vertices; j++){
+            if(!info[j].visitado && info[j].distancia < menor_Dist){
+                menor_Dist = info[j].distancia;
+                menor_Vertice = j;
+            }
+        }
+        if(menor_Vertice == -1) break;
+
+        info[menor_Vertice].visitado = 1;
+
+        for(j = 0; j < num_vertices; j++){
+            if(g->matriz_arestas[menor_Vertice][j] > 0){
+                int alt = info[menor_Vertice].distancia + g->matriz_arestas[menor_Vertice][j];
+
+                if(alt < info[j].distancia){
+                    info[j].distancia = alt;
+                    info[j].predecessor = menor_Vertice;
+                }
+            }
+        }        
+    }
+    printf("Teste");
+    for(i = 0; i < num_vertices; i++){
+        printf("Vertice: %s, Distancia: %d\n", lv[i].local->nome, info[i].distancia);
+    }
+}  

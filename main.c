@@ -67,9 +67,9 @@ int main() {
 
     g_arestas(self);
 
+    Vertice_Info *info[MAX_VERTICES];
 
-
-    determinaMenorCaminho(self, listavertices);
+    dijkstra(self, listavertices, info[MAX_VISITAS]);
 
     // Liberar memória alocada para a lista de locais
     ListaLocais* atual = listavertices;
