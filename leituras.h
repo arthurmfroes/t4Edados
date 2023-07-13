@@ -3,35 +3,23 @@
 
 #include "grafo.h"
 
-typedef struct locais {
-    int id;
-    char* nome;
-    double latitude;
-    double longitude;
-    char* desc;
-} Locais;
+typedef struct _vertices *vertices;
+typedef struct _listavertices *listavertices;
+typedef struct _arestas *arestas;
+typedef struct _listaarestas *listaarestas;
 
-typedef struct listalocais {
-    Locais* local;
-    struct ListaLocais* prox;
-    struct ListaLocais* ant;
-} ListaLocais;
+//Carrega lista de vertices e cria o grafo com n vertices e orientado ou nao
+int carregaVertices(listavertices vertices, const char* nomeArquivo);
+//void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais);
 
-typedef struct arestas {
-    char* origem;
-    char* destino;
-    double distancia;
-} Arestas;
+//cria lista de arestas
+void lerArquivoArestas(listaarestas arestas, const char* nomeArquivo, listavertices vertices);
 
-typedef struct listaarestas {
-    Arestas* aresta;
-    struct listaarestas* prox;
-    struct listaarestas* ant;
-} ListaArestas;
+//insere lista de arestas no grafo
+void insereListasNoGrafo(Grafo grafo, listaarestas arestas);
 
-void lerArquivoVertices(ListaLocais** listaLocais, const char* nomeArquivo, Grafo self);
-void atualizarDistancia(Arestas* aresta, ListaLocais* listaLocais);
-void lerArquivoArestas(ListaArestas** listaArestas, const char* nomeArquivo, ListaLocais* listaLocais);
-void insereListasNoGrafo(Grafo grafo, ListaLocais* listaLocais, ListaArestas* listaArestas);
+
+//função interna para atualizar a distancia entre dois locais, não é chamada diretamente
+double atualizarDistancia(int origem, int destino, listavertices listaLocais);
 
 #endif  // LEITURAS_H

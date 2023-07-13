@@ -5,12 +5,6 @@
 
 #define MAX_VERTICES 50
 
-typedef struct _grafo {
-    float matriz_arestas[MAX_VERTICES][MAX_VERTICES];
-    bool orientado;
-    int nvertices;
-};
-
 typedef struct _grafo *Grafo;
 
 // aloca e inicializa um grafo com n vértices
@@ -23,6 +17,9 @@ void g_destroi(Grafo self);
 
 // retorna o número de vértices do grafo
 int g_nvertices(Grafo self);
+
+//retorna se o grafo é orientado ou não
+bool g_orientado(Grafo self);
 
 // insere uma aresta no grafo (ou altera o peso de uma aresta já existente)
 void g_ins_aresta(Grafo self, int origem, int destino, float peso);
@@ -44,7 +41,7 @@ void g_arestas_que_partem(Grafo self, int origem);
 // retorna true se ok ou false se não tem mais arestas ou se não foi iniciada uma consulta
 // cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
-bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso);
+bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso, int num);
 
 
 #endif // GRAFO_H

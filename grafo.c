@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include "grafo.h"
 
+struct _grafo {
+    float matriz_arestas[MAX_VERTICES][MAX_VERTICES];
+    bool orientado;
+    int nvertices;
+};
 
 // aloca e inicializa um grafo com n vértices
 // o grafo pode ser orientado ou não (afeta o processamento das arestas)
@@ -48,12 +53,14 @@ void g_arestas(Grafo self) {
     int origem = 0;
     int destino = 0;
     bool controle = true;
+    int num = g_nvertices(self);
 
 
     printf("\nArestas do grafo:\n");
-    for (origem = 0; origem < self->nvertices; origem++) {
-        for (destino = 0;destino < self->nvertices; destino++) {
-            controle = g_proxima_aresta(self, &origem, &destino, NULL);
+    for (origem = 0; origem < num; origem++) {
+        for (destino = 0;destino < num; destino++) {
+            printf("%d -> %d   (%lf)\n", origem, destino, self->matriz_arestas[origem][destino]);
+            //controle = g_proxima_aresta(self, &origem, &destino, NULL, num);
         }
     }
 }
@@ -61,9 +68,11 @@ void g_arestas(Grafo self) {
 // inicia uma consulta a arestas do grafo.
 // as próximas chamadas à g_proxima_aresta devem retornar cada aresta do grafo que parte do vértice origem
 void g_arestas_que_partem(Grafo self, int origem) {
+    int num = g_nvertices(self);
+
     if (origem >= 0 && origem < self->nvertices) {
         printf("Arestas que partem do vértice %d:\n", origem);
-        for (int i = 0; i < self->nvertices; i++) {
+        for (int i = 0; i < num; i++) {
             if (self->matriz_arestas[origem][i] != 0) {
                 printf("%d -> %d\n", origem, i);
             }
@@ -71,6 +80,7 @@ void g_arestas_que_partem(Grafo self, int origem) {
     } else {
         printf("Vértice inválido!\n");
     }
+    printf("terminou");
 }
 
 
@@ -78,8 +88,8 @@ void g_arestas_que_partem(Grafo self, int origem) {
 // retorna true se ok ou false se não tem mais arestas ou se não foi iniciada uma consulta
 // cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
-bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
-    if (*origem < self->nvertices && *destino < self->nvertices) {
+bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso, int num) {
+    if (*origem < num && *destino < num) {
         if (self->matriz_arestas[*origem][*destino] == 0) {
             return true;
         } else {
@@ -88,4 +98,9 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
         }
     }
     return false;
+}
+
+// retorna true se o grafo é orientado ou false caso contrário
+bool g_orientado(Grafo self) {
+    return self->orientado;
 }
