@@ -34,13 +34,14 @@ struct _listaarestas {
 };
 
 
-int carregaVertices(listavertices lista, const char* nomeArquivo) {
+listavertices carregaVertices(listavertices lista, const char* nomeArquivo) {
+
+
+    vertices novoVertice = NULL;
+    listavertices novoNo = NULL;
+    listavertices ultimoNo = NULL;
 
     FILE* arquivo = fopen(nomeArquivo, "r");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return -1;
-    }
 
     char linha[100];
     int id = 0;
@@ -49,6 +50,10 @@ int carregaVertices(listavertices lista, const char* nomeArquivo) {
         if (linha[0] == '#') {
             continue;  // Ignorar linhas que começam com '#'
         }
+
+        linha[strcspn(linha, "\n")] = '\0'; // Remove o caractere de nova linha
+
+
         char* nome = strtok(linha, ",");
         char* latitudeStr = strtok(NULL, ",");
         char* longitudeStr = strtok(NULL, ",");
@@ -66,41 +71,32 @@ int carregaVertices(listavertices lista, const char* nomeArquivo) {
         novoVertice->nome = strdup(nome);
         novoVertice->latitude = latitude;
         novoVertice->longitude = longitude;
-        novoVertice->desc = (desc != NULL) ? strdup(desc) : strdup(" ");
 
-        listavertices novoNo = (listavertices)malloc(sizeof(struct _listavertices));
-        novoNo->local = novoVertice;
-        novoNo->prox = NULL;
-
+        novoVertice->desc = (desc != NULL) ? malloc(strlen(desc) + 1) : malloc(14); // Aloca memória para a string desc
+        
         if (lista == NULL) {
-            lista= novoNo;
+            lista = (listavertices)malloc(sizeof(struct _listavertices));
+            lista->local = novoVertice;
+            lista->prox = NULL;
+            ultimoNo = lista;
         } else {
-            listavertices ultimo = lista;
-        while (ultimo->prox != NULL) {
-            ultimo = ultimo->prox;
-        }
+            novoNo = (listavertices)malloc(sizeof(struct _listavertices));
+            novoNo->local = novoVertice;
+            novoNo->prox = NULL;
+            ultimoNo->prox = novoNo;
+            ultimoNo = novoNo;}
+
         id++;
-        }
-    }
-    if (id == 0) {
-        printf("Nenhum local encontrado no arquivo.\n");
-    }
-    if (lista==NULL) {
-        printf("Lista vazia.\n");
     }
     fclose(arquivo);
-    return id;
+    return lista;
 }
 
 
 
 // Função para ler e armazenar a lista de caminhos
-void lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo, listavertices listaLocais) {
+listaarestas lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo, listavertices listaLocais) {
     FILE* arquivo = fopen(nomeArquivo, "r");
-    if (arquivo == NULL) {
-        printf("Erro ao abrir o arquivo.\n");
-        return;
-    }
 
     char linha[100];
     while (fgets(linha, sizeof(linha), arquivo)) {
@@ -117,7 +113,6 @@ void lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo, listav
         int origemID = -1, destinoID = -1;
         listavertices current = listaLocais;
         while (current != NULL) {
-            printf("procurando ids");
             if (strcmp(current->local->nome, origemStr) == 0)
                 origemID = current->local->id;
             else if (strcmp(current->local->nome, destinoStr) == 0)
@@ -128,34 +123,28 @@ void lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo, listav
 
             current = current->prox;
         }
-
-        // Cria uma nova aresta e a adiciona à lista de arestas
         if (origemID != -1 && destinoID != -1) {
             arestas novaAresta = (arestas)malloc(sizeof(struct _arestas));
             novaAresta->origem = origemID;
             novaAresta->destino = destinoID;
             novaAresta->distancia = atualizarDistancia(origemID, destinoID, listaLocais);
-            printf("passou de atualizar distancia");
-            listaarestas novaLista = (listaarestas)malloc(sizeof(struct _listaarestas));
-            novaLista->aresta = novaAresta;
-            novaLista->prox = NULL;
+            
+            listaarestas novoNo = (listaarestas)malloc(sizeof(struct _listaarestas));
+            novoNo->aresta = novaAresta;
+            novoNo->prox = NULL;
 
             if (listaAresta == NULL) {
-                listaAresta = novaLista;
+                listaAresta = novoNo;
             } else {
-                listaarestas atual = listaAresta;
-                while (atual->prox != NULL)
-                    atual = atual->prox;
-                atual->prox = novaLista;
+                listaarestas current = listaAresta;
+                while (current->prox != NULL)
+                    current = current->prox;
+                current->prox = novoNo;
             }
         }
     }
-    while (listaAresta != NULL) {
-        printf("printando lista de arestas");
-        printf("%d %d %lf\n", listaAresta->aresta->origem, listaAresta->aresta->destino, listaAresta->aresta->distancia);
-        listaAresta = listaAresta->prox;
-    }
     fclose(arquivo);
+    return listaAresta;
 }
 
 // Função para calcular a distância entre dois vértices
@@ -186,7 +175,6 @@ double atualizarDistancia(int origem, int destino, listavertices listaLocais) {
 
     // Calcula a distância total como a hipotenusa do triângulo formado
     double distancia = sqrt(distNS * distNS + distEW * distEW);
-    printf("retornou a distancia %lf\n", distancia);
     return distancia * 1000.0;
 }
 
@@ -214,4 +202,13 @@ void insereListasNoGrafo(Grafo grafo, listaarestas listaArestas) {
     }
 }
 
+int retornaNumVertices (listavertices listaLocais) {
+    int numVertices = 0;
+    listavertices current = listaLocais;
+    while (current != NULL) {
+        numVertices++;
+        current = current->prox;
+    }
+    return numVertices;
+}
 

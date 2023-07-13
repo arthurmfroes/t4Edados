@@ -59,7 +59,9 @@ void g_arestas(Grafo self) {
     printf("\nArestas do grafo:\n");
     for (origem = 0; origem < num; origem++) {
         for (destino = 0;destino < num; destino++) {
-            printf("%d -> %d   (%lf)\n", origem, destino, self->matriz_arestas[origem][destino]);
+            if (self->matriz_arestas[origem][destino] != 0) {
+                printf("%d -> %d   (%lf)\n", origem, destino, self->matriz_arestas[origem][destino]);
+            }
             //controle = g_proxima_aresta(self, &origem, &destino, NULL, num);
         }
     }
