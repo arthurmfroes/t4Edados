@@ -2,12 +2,13 @@
 #include <stdlib.h>
 #include "leituras.h"
 #include "grafo.h"
+#include "menorcaminho.h"
 
 int main() {
     listavertices lista_de_vertices = NULL;
     listaarestas lista_de_arestas = NULL;
     Grafo self = NULL;
-    printf("criou variaveis");
+
     lista_de_vertices = carregaVertices(lista_de_vertices, "locais.csv"); //inicializa a lista de locais e armazena todo conteudo do arquivo nela, retorna a quantidade de vertices
 
     int num_vertices = retornaNumVertices(lista_de_vertices);
@@ -17,6 +18,6 @@ int main() {
 
     insereListasNoGrafo(self, lista_de_arestas); //insere as arestas no grafo
 
-    g_arestas(self);
+    EncontraMenorCaminho(self);
 
 }

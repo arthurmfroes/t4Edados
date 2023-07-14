@@ -2,7 +2,9 @@
 #define MENORCAMINHO_H
 
 #include "grafo.h"
-#include "leituras.h"
+
+void EncontraMenorCaminho(Grafo g);
+void dijkstra(Grafo g, int inicial, float *distancia, int *pai);
 
 
 #endif
