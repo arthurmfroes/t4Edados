@@ -6,8 +6,10 @@ struct _grafo {
     float matriz_arestas[MAX_VERTICES][MAX_VERTICES];
     bool orientado;
     int nvertices;
+    int narestas;
     bool consulta_em_andamento;
 
+    int tipo_consulta;
     int arestas_consultadas;
     int prox_origem;//nao tenho ctz, verificar
     int prox_destino;//nao tenho ctz, verificar
@@ -29,7 +31,9 @@ Grafo g_cria(int n, bool orientado){
     }
     self->orientado = orientado;
     self->nvertices = n;
+    self->narestas = 0;
 
+    int tipo_consulta = -1;
     self->consulta_em_andamento = false;
     self->prox_origem = -1;
     self->prox_destino = -1;
@@ -54,6 +58,7 @@ bool g_orientado(Grafo self) {
 }
 // insere uma aresta no grafo (ou altera o peso de uma aresta já existente)
 void g_ins_aresta(Grafo self, int origem, int destino, float distancia){
+    self->narestas++;
     self->matriz_arestas[origem][destino] = distancia;
 }
 
@@ -62,55 +67,101 @@ void g_rem_aresta(Grafo self, int origem, int destino) {
     self->matriz_arestas[origem][destino] = 0;
 }
 
-// inicia uma consulta a arestas do grafo.
-// as próximas chamadas a g_proxima_aresta devem retornar cada aresta do grafo
 void g_arestas(Grafo self) {
+    if (self == NULL)
+        return;
+
     self->consulta_em_andamento = true;
+    self->tipo_consulta = 0;
+    self->arestas_consultadas = 0;
     self->prox_origem = 0;
     self->prox_destino = 0;
-    self->prox_aresta = 0;
+    self->prox_aresta = 0.0;
+    printf("%d\n", self->narestas);
+    // for (int i = 0; i < self->nvertices; i++) {
+    //     for (int j = 0; j < self->nvertices; j++) {
+    //         if (self->matriz_arestas[i][j] != 0) {
+    //             //printf("%d %d %f\n", i, j, self->matriz_arestas[i][j]);
+    //         }
+    //     }
+    // }
 }
 
-// inicia uma consulta a arestas do grafo.
-// as próximas chamadas à g_proxima_aresta devem retornar cada aresta do grafo que parte do vértice origem
 void g_arestas_que_partem(Grafo self, int origem) {
+    if (self == NULL)
+        return;
+
+    self->tipo_consulta = 1;
     self->consulta_em_andamento = true;
+    self->arestas_consultadas = 0;
     self->prox_origem = origem;
     self->prox_destino = 0;
-    self->prox_aresta = 0;
+    self->prox_aresta = self->matriz_arestas[origem][0];
 }
 
-// retorna os dados sobre a próxima aresta de uma consulta
-// retorna true se ok ou false se não tem mais arestas ou se não foi iniciada uma consulta
-// cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
-// não se deve inserir ou remover arestas no grafo com uma consulta em andamento
 bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
-    if (!self->consulta_em_andamento) {
-        return false; // no ongoing query
-    }
+    if (self == NULL)
+        return false;
 
-    while (self->prox_origem < self->nvertices) {
-        for (int i = self->prox_destino; i < self->nvertices; i++) {
-            if (self->matriz_arestas[self->prox_origem][i] != 0) {
-                *origem = self->prox_origem;
-                *destino = i;
-                *peso = self->matriz_arestas[self->prox_origem][i];
-                self->prox_destino = i + 1;
+    if (self->tipo_consulta == 0) { //consulta
+        if (!self->consulta_em_andamento || self->arestas_consultadas == self->narestas)
+            return false;
 
-                if (self->prox_destino == self->nvertices) {
-                    self->prox_destino = 0;
-                    self->prox_origem++;
+        // Percorre a matriz de arestas buscando a próxima aresta válida
+        for (int i = self->prox_origem; i < self->nvertices; i++) {
+            for (int j = self->prox_destino; j < self->nvertices; j++) {
+                if (self->matriz_arestas[i][j] != 0.0) {
+                    *origem = i;
+                    *destino = j;
+                    *peso = self->matriz_arestas[i][j];
+                    self->arestas_consultadas++;
+                    self->prox_origem = i;
+                    self->prox_destino = j + 1;
+                    self->prox_aresta = self->matriz_arestas[i][j + 1];
+                    return true;
                 }
-
-                return true;
             }
+            self->prox_destino = 0;  // Reinicia a busca para a próxima linha
         }
 
-        self->prox_destino = 0;
-        self->prox_origem++;
+        // Se chegou até aqui, significa que não há mais arestas a serem consultadas
+        self->consulta_em_andamento = false;
+        self->arestas_consultadas = 0;
+        self->tipo_consulta = -1;
+        return false;
+
+    } else if (self->tipo_consulta == 1) {
+        // Consulta das arestas que partem da origem especificada
+
+        if (!self->consulta_em_andamento || self->arestas_consultadas == self->nvertices)
+            return false;
+
+        while (self->prox_destino < self->nvertices) {
+            if (self->matriz_arestas[self->prox_origem][self->prox_destino] != 0.0) {
+                *origem = self->prox_destino;//mudar a ordem, fiz gambiarra
+                *destino = self->prox_origem;//mudar a ordem, fiz gambiarra
+                *peso = self->matriz_arestas[self->prox_origem][self->prox_destino];
+                self->arestas_consultadas++;
+                self->prox_destino++;
+                self->prox_aresta = self->matriz_arestas[self->prox_origem][self->prox_destino];
+                return true;
+            }
+            self->prox_destino++;
+        }
+
+        // Se chegou até aqui, significa que não há mais arestas a serem consultadas
+        self->consulta_em_andamento = false;
+        self->arestas_consultadas = 0;
+        self->tipo_consulta = -1;
+        return false;
     }
 
-    // No more edges or query not initiated
-    self->consulta_em_andamento = false;
     return false;
 }
+
+
+
+
+
+
+

@@ -29,6 +29,7 @@ struct _arestas {
 };
 
 struct _listaarestas {
+    int numArestas;
     struct _arestas* aresta;
     struct _listaarestas* prox;
 };

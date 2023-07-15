@@ -6,44 +6,65 @@
 #define INFINITO INT_MAX
 #define INDEFINIDO -1
 
-void dijkstra(Grafo g, int inicial, float *distancia, int *pai)
-{
+void dijkstra(Grafo g, int inicial) {
     printf("Dijkstra\n");
-    int n, a, d;
-    float n_dist;
-    int num_vertices = g_nvertices(g);
-    bool visitado[num_vertices];
-    for (n = 0; n < num_vertices; n++) {
-        visitado[n] = false;
-        distancia[n] = INFINITO;
-        pai[n] = INDEFINIDO;
+  int n;
+  int distancia[MAX_VERTICES];
+  int pai[MAX_VERTICES];
+  bool visitado[MAX_VERTICES];
+
+  for (n = 0; n < g_nvertices(g); n++) {
+    visitado[n] = false;
+    distancia[n] = INFINITO;
+    pai[n] = INDEFINIDO;
+  }
+
+  distancia[inicial] = 0;
+
+  while (tem_nao_visitado(visitado, g_nvertices(g))) {
+    int n = encontrar_menor_distancia(distancia, visitado, g_nvertices(g));
+    visitado[n] = true;
+    g_arestas_que_partem(g, n);
+    int origem, destino;
+    float peso;
+
+    while (g_proxima_aresta(g, &origem, &destino, &peso)) {
+      int n_dist = distancia[n] + peso;
+      if (n_dist < distancia[destino]) {
+        distancia[destino] = n_dist;
+        pai[destino] = n;
+      }
     }
-    distancia[inicial] = 0;
-    while (true) {
-        int menor_distancia = INFINITO;
-        int menor_distancia_vertice = -1;
-        for (n = 0; n < num_vertices; n++) {
-            if (!visitado[n] && distancia[n] < menor_distancia) {
-                menor_distancia = distancia[n];
-                menor_distancia_vertice = n;
-            }
-        }
-        if (menor_distancia_vertice == -1)
-            break;
-        visitado[menor_distancia_vertice] = true;
-        g_arestas_que_partem(g, menor_distancia_vertice);
-        while (g_proxima_aresta(g, NULL, &d, &n_dist)) {
-            if (!visitado[d]) {
-                int distancia_atualizada = distancia[menor_distancia_vertice] + n_dist;
-                if (distancia_atualizada < distancia[d]) {
-                    distancia[d] = distancia_atualizada;
-                    pai[d] = menor_distancia_vertice;
-                }
-            }
-        }
-    }
-    printf("Fim Dijkstra\n");
+  }
+
+  // Retorne a distância e o pai (anterior) de cada nó.
+  // Implemente o código apropriado para retornar esses valores.
 }
+
+bool tem_nao_visitado(bool visitado[], int num_vertices) {
+  for (int i = 0; i < num_vertices; i++) {
+    if (!visitado[i]) {
+      return true;
+    }
+  }
+  return false;
+}
+
+int encontrar_menor_distancia(int distancia[], bool visitado[], int num_vertices) {
+    printf("Encontrar menor distancia\n");
+  int menor_distancia = INFINITO;
+  int menor_no = -1;
+
+  for (int i = 0; i < num_vertices; i++) {
+    if (!visitado[i] && distancia[i] < menor_distancia) {
+      menor_distancia = distancia[i];
+      menor_no = i;
+    }
+  }
+
+  return menor_no;
+}
+
 
 void EncontraMenorCaminho(Grafo g)
 {
@@ -54,22 +75,34 @@ void EncontraMenorCaminho(Grafo g)
     float distancia[num_vertices];
     int pai[num_vertices];
 
-    //dijkstra(g, 0, distancia, pai);
+    dijkstra(g, 0);
+    
     g_arestas(g);
-    int destino = 0;
-    int origem = 0;
-    float peso = 0;
+    int destino;
+    int origem;
+    float peso;
     bool eh_aresta = true;
+    // while (eh_aresta == true) {
+    //     eh_aresta = g_proxima_aresta(g, &destino, &origem, &peso);
+    //     if (eh_aresta == false)
+    //         break;
+    //     printf("%d -> %d (%f)\n", origem, destino, peso);
+    // }
+
+    g_arestas_que_partem(g, 6);
+    eh_aresta = true;
     while (eh_aresta == true) {
         eh_aresta = g_proxima_aresta(g, &destino, &origem, &peso);
+        if (eh_aresta == false)
+            break;
         printf("%d -> %d (%f)\n", origem, destino, peso);
     }
 
-    // Imprime os resultados
-    printf("Distancias a partir do no 0:\n");
-    for (int i = 0; i < num_vertices; i++) {
-        printf("No %d: %lf\n", i, distancia[i]);
-    }
+    // // Imprime os resultados
+    // printf("Distancias a partir do no 0:\n");
+    // for (int i = 0; i < num_vertices; i++) {
+    //     printf("No %d: %lf\n", i, distancia[i]);
+    // }
 
 }
 //traduzir isso aqui:
