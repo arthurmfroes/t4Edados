@@ -8,9 +8,10 @@ struct _grafo {
     int nvertices;
     bool consulta_em_andamento;
 
-
-    int origem_consulta;//nao tenho ctz, verificar
-    int proxima_aresta;//nao tenho ctz, verificar
+    int arestas_consultadas;
+    int prox_origem;//nao tenho ctz, verificar
+    int prox_destino;//nao tenho ctz, verificar
+    double prox_aresta;//nao tenho ctz, verificar
 };
 
 // aloca e inicializa um grafo com n vértices
@@ -30,8 +31,9 @@ Grafo g_cria(int n, bool orientado){
     self->nvertices = n;
 
     self->consulta_em_andamento = false;
-    self->origem_consulta = -1;
-    self->proxima_aresta = 0;
+    self->prox_origem = -1;
+    self->prox_destino = -1;
+    self->prox_aresta = 0;
 
     return self;
 }
@@ -64,16 +66,18 @@ void g_rem_aresta(Grafo self, int origem, int destino) {
 // as próximas chamadas a g_proxima_aresta devem retornar cada aresta do grafo
 void g_arestas(Grafo self) {
     self->consulta_em_andamento = true;
-    self->origem_consulta = -1;
-    self->proxima_aresta = 0;
+    self->prox_origem = 0;
+    self->prox_destino = 0;
+    self->prox_aresta = 0;
 }
 
 // inicia uma consulta a arestas do grafo.
 // as próximas chamadas à g_proxima_aresta devem retornar cada aresta do grafo que parte do vértice origem
 void g_arestas_que_partem(Grafo self, int origem) {
     self->consulta_em_andamento = true;
-    self->origem_consulta = origem;
-    self->proxima_aresta = 0;
+    self->prox_origem = origem;
+    self->prox_destino = 0;
+    self->prox_aresta = 0;
 }
 
 // retorna os dados sobre a próxima aresta de uma consulta
@@ -82,38 +86,31 @@ void g_arestas_que_partem(Grafo self, int origem) {
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
 bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
     if (!self->consulta_em_andamento) {
-        return false;
+        return false; // no ongoing query
     }
 
-    int nvertices = self->nvertices;
+    while (self->prox_origem < self->nvertices) {
+        for (int i = self->prox_destino; i < self->nvertices; i++) {
+            if (self->matriz_arestas[self->prox_origem][i] != 0) {
+                *origem = self->prox_origem;
+                *destino = i;
+                *peso = self->matriz_arestas[self->prox_origem][i];
+                self->prox_destino = i + 1;
 
-    while (self->proxima_aresta < nvertices) {
-        int i = self->proxima_aresta;
-        int j = self->origem_consulta >= 0 ? self->origem_consulta : 0;
+                if (self->prox_destino == self->nvertices) {
+                    self->prox_destino = 0;
+                    self->prox_origem++;
+                }
 
-        while (j < nvertices) {
-            if (self->matriz_arestas[i][j] != 0) {
-                if (origem != NULL) {
-                    *origem = i;
-                }
-                if (destino != NULL) {
-                    *destino = j;
-                }
-                if (peso != NULL) {
-                    *peso = self->matriz_arestas[i][j];
-                }
-                self->proxima_aresta = j + 1;
                 return true;
             }
-            j++;
         }
 
-        self->proxima_aresta = 0;
-        if (self->origem_consulta >= 0) {
-            break;
-        }
+        self->prox_destino = 0;
+        self->prox_origem++;
     }
 
+    // No more edges or query not initiated
     self->consulta_em_andamento = false;
     return false;
 }

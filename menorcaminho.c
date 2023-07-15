@@ -54,23 +54,21 @@ void EncontraMenorCaminho(Grafo g)
     float distancia[num_vertices];
     int pai[num_vertices];
 
-    dijkstra(g, 0, distancia, pai);
+    //dijkstra(g, 0, distancia, pai);
+    g_arestas(g);
+    int destino = 0;
+    int origem = 0;
+    float peso = 0;
+    bool eh_aresta = true;
+    while (eh_aresta == true) {
+        eh_aresta = g_proxima_aresta(g, &destino, &origem, &peso);
+        printf("%d -> %d (%f)\n", origem, destino, peso);
+    }
 
     // Imprime os resultados
     printf("Distancias a partir do no 0:\n");
     for (int i = 0; i < num_vertices; i++) {
-        printf("No %d: %f\n", i, distancia[i]);
-    }
-
-    printf("\nCaminho minimo:\n");
-    for (int i = 0; i < num_vertices; i++) {
-        printf("No %d: ", i);
-        int no = i;
-        while (no != -1) {
-            printf("%d ", no);
-            no = pai[no];
-        }
-        printf("\n");
+        printf("No %d: %lf\n", i, distancia[i]);
     }
 
 }
