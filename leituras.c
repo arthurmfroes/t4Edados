@@ -214,11 +214,11 @@ int retornaNumVertices (listavertices listaLocais) {
     return numVertices;
 }
 
-void lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices vertices) {
+listavisitas lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices vertices) {
     FILE* arquivo = fopen(nomearquivo, "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
-        return;
+        return NULL;
     }
     
     char linha[6];
@@ -248,6 +248,7 @@ void lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices ve
             }
             atual = atual->prox;
         }
+        return visitas;
     }
     
     fclose(arquivo);
@@ -256,3 +257,20 @@ void lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices ve
         visitas = visitas->prox;
     }
 }
+
+
+int retornaProxVisita(listavisitas visitas) {
+    if (visitas == NULL) {
+        return -1;
+    }
+
+    listavisitas temp = visitas;
+    int valor = temp->id;
+
+    visitas = (visitas)->prox;
+    free(temp);
+
+    return valor;
+}
+
+

@@ -72,28 +72,37 @@ void dijkstra(Grafo grafo, int origem, float* distancias, int* predecessores) {
     free(visitados);
 }
 
-void EncontraMenorCaminho(Grafo g) {
+void EncontraMenorCaminho(Grafo g, listavertices lista_de_vertices) {
 
   int nvertices = g_nvertices(g);
   float* distancias = (float*)malloc(nvertices * sizeof(float));
   int* predecessores = (int*)malloc(nvertices * sizeof(int));
+
+  listavisitas lista_de_visitas = NULL;
+
+  lista_de_visitas = lerArquivoVisitas(lista_de_visitas, "visita.csv", lista_de_vertices);
   
-  int origem = 0;
-  dijkstra(g, origem, distancias, predecessores);
-  // Execução do algoritmo de Dijkstra
+  int proxvisita = 0;
 
-  printf("Menor caminho a partir do vértice %d:\n", origem);
-
-  int i = 19;
-  printf("Menor distancia do vertice %d ate %d: %.2f\n", origem, i, distancias[i]);
-  printf("Caminho: %d", i);
-  int v = i;
-  while (v != origem) {
-      printf(" <- %d", predecessores[v]);
-      v = predecessores[v];
-    
-  // Liberação da memória do grafo
-  free(distancias);
-  free(predecessores);
+  while (proxvisita != -1) {
+    if (proxvisita == -1) {
+      break;}
+    proxvisita = retornaProxVisita(lista_de_visitas);
+    printf("Proxima visita: %d\n", proxvisita);
   }
+
+    int origem = 0;
+    int i = 19;
+    dijkstra(g, origem, distancias, predecessores);
+    printf("Menor distancia do vertice %d ate %d: %.2f\n", origem, i, distancias[i]);
+    printf("Caminho: %d", i);
+    int v = i;
+    while (v != origem) {
+        printf(" <- %d", predecessores[v]);
+        v = predecessores[v];
+        
+    // Liberação da memória do grafo
+    free(distancias);
+    free(predecessores);
+    }
 }
