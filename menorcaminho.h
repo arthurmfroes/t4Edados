@@ -4,8 +4,6 @@
 #include "grafo.h"
 
 void EncontraMenorCaminho(Grafo g);
-void dijkstra(Grafo g, int inicial);
-bool tem_nao_visitado(bool visitado[], int num_vertices);
-int encontrar_menor_distancia(int distancia[], bool visitado[], int num_vertices);
+void dijkstra(Grafo grafo, int origem, float* distancias, int* predecessores);
 
 #endif

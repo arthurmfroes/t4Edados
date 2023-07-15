@@ -5,9 +5,8 @@
 #include "leituras.h"
 #include "grafo.h"
 
-#define M_PI 3.14159265358979323846
 #define TAM_MAX_LINHA 90
-#define R 6371.0
+
 
 struct _vertices {
     int id;
@@ -34,10 +33,12 @@ struct _listaarestas {
     struct _listaarestas* prox;
 };
 
+struct _listavisitas {
+    int id;
+    struct _listavisitas* prox;
+};
 
 listavertices carregaVertices(listavertices lista, const char* nomeArquivo) {
-
-
     vertices novoVertice = NULL;
     listavertices novoNo = NULL;
     listavertices ultimoNo = NULL;
@@ -213,3 +214,45 @@ int retornaNumVertices (listavertices listaLocais) {
     return numVertices;
 }
 
+void lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices vertices) {
+    FILE* arquivo = fopen(nomearquivo, "r");
+    if (arquivo == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+    
+    char linha[6];
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        linha[strcspn(linha, "\r\n")] = '\0'; // Remove o caractere de nova linha
+        
+        // Procura o vértice com o nome correspondente na lista de vértices
+        listavertices atual = vertices;
+        while (atual != NULL) {
+            if (strcmp(atual->local->nome, linha) == 0) {
+                // Encontrou o vértice correspondente
+                listavisitas novo = (listavisitas)malloc(sizeof(struct _listavisitas));
+                novo->id = atual->local->id;
+                novo->prox = NULL;
+                
+                if (visitas == NULL) {
+                    visitas = novo;
+                } else {
+                    listavisitas ultimo = visitas;
+                    while (ultimo->prox != NULL) {
+                        ultimo = ultimo->prox;
+                    }
+                    ultimo->prox = novo;
+                }
+                
+                break;
+            }
+            atual = atual->prox;
+        }
+    }
+    
+    fclose(arquivo);
+    while (visitas != NULL) {
+        printf("Visita: %d\n", visitas->id);
+        visitas = visitas->prox;
+    }
+}

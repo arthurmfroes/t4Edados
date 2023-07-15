@@ -1,111 +1,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <limits.h>
+#include <stdlib.h>
 #include "menorcaminho.h"
 
-#define INFINITO INT_MAX
 #define INDEFINIDO -1
-
-void dijkstra(Grafo g, int inicial) {
-    printf("Dijkstra\n");
-  int n;
-  int distancia[MAX_VERTICES];
-  int pai[MAX_VERTICES];
-  bool visitado[MAX_VERTICES];
-
-  for (n = 0; n < g_nvertices(g); n++) {
-    visitado[n] = false;
-    distancia[n] = INFINITO;
-    pai[n] = INDEFINIDO;
-  }
-
-  distancia[inicial] = 0;
-
-  while (tem_nao_visitado(visitado, g_nvertices(g))) {
-    int n = encontrar_menor_distancia(distancia, visitado, g_nvertices(g));
-    visitado[n] = true;
-    g_arestas_que_partem(g, n);
-    int origem, destino;
-    float peso;
-
-    while (g_proxima_aresta(g, &origem, &destino, &peso)) {
-      int n_dist = distancia[n] + peso;
-      if (n_dist < distancia[destino]) {
-        distancia[destino] = n_dist;
-        pai[destino] = n;
-      }
-    }
-  }
-
-  // Retorne a distância e o pai (anterior) de cada nó.
-  // Implemente o código apropriado para retornar esses valores.
-}
-
-bool tem_nao_visitado(bool visitado[], int num_vertices) {
-  for (int i = 0; i < num_vertices; i++) {
-    if (!visitado[i]) {
-      return true;
-    }
-  }
-  return false;
-}
-
-int encontrar_menor_distancia(int distancia[], bool visitado[], int num_vertices) {
-    printf("Encontrar menor distancia\n");
-  int menor_distancia = INFINITO;
-  int menor_no = -1;
-
-  for (int i = 0; i < num_vertices; i++) {
-    if (!visitado[i] && distancia[i] < menor_distancia) {
-      menor_distancia = distancia[i];
-      menor_no = i;
-    }
-  }
-
-  return menor_no;
-}
-
-
-void EncontraMenorCaminho(Grafo g)
-{
-    // Exemplo de uso
-
-    int num_vertices = g_nvertices(g);
-
-    float distancia[num_vertices];
-    int pai[num_vertices];
-
-    dijkstra(g, 0);
-    
-    g_arestas(g);
-    int destino;
-    int origem;
-    float peso;
-    bool eh_aresta = true;
-    // while (eh_aresta == true) {
-    //     eh_aresta = g_proxima_aresta(g, &destino, &origem, &peso);
-    //     if (eh_aresta == false)
-    //         break;
-    //     printf("%d -> %d (%f)\n", origem, destino, peso);
-    // }
-
-    g_arestas_que_partem(g, 6);
-    eh_aresta = true;
-    while (eh_aresta == true) {
-        eh_aresta = g_proxima_aresta(g, &destino, &origem, &peso);
-        if (eh_aresta == false)
-            break;
-        printf("%d -> %d (%f)\n", origem, destino, peso);
-    }
-
-    // // Imprime os resultados
-    // printf("Distancias a partir do no 0:\n");
-    // for (int i = 0; i < num_vertices; i++) {
-    //     printf("No %d: %lf\n", i, distancia[i]);
-    // }
-
-}
-//traduzir isso aqui:
+//dijkstra em pseudocodigo
 // dijstra(grafo g, no inicial)
 //   {
 //     for (n = cada nó em g) {
@@ -129,3 +29,71 @@ void EncontraMenorCaminho(Grafo g)
 
 //     return distancia, pai;
 //   }
+
+
+void dijkstra(Grafo grafo, int origem, float* distancias, int* predecessores) {
+    int nvertices = g_nvertices(grafo);
+    bool* visitados = (bool*)malloc(nvertices * sizeof(bool));
+
+    for (int i = 0; i < nvertices; i++) {
+        distancias[i] = INT_MAX;
+        predecessores[i] = 0;
+        visitados[i] = false;
+    }
+
+    distancias[origem] = 0.0;
+
+    for (int i = 0; i < nvertices; i++) {
+        float menorDistancia = INT_MAX;
+        int verticeAtual = -1;
+
+        for (int j = 0; j < nvertices; j++) {
+            if (!visitados[j] && distancias[j] < menorDistancia) {
+                menorDistancia = distancias[j];
+                verticeAtual = j;
+            }
+        }
+
+        if (verticeAtual == -1) {
+            break;
+        }
+
+        visitados[verticeAtual] = true;
+
+        for (int j = 0; j < nvertices; j++) {
+            float peso = g_peso_aresta(grafo, verticeAtual, j);
+            if (peso > 0.0 && distancias[verticeAtual] + peso < distancias[j]) {
+                distancias[j] = distancias[verticeAtual] + peso;
+                predecessores[j] = verticeAtual;
+            }
+        }
+    }
+
+    free(visitados);
+}
+
+void EncontraMenorCaminho(Grafo g) {
+
+  int nvertices = g_nvertices(g);
+  float* distancias = (float*)malloc(nvertices * sizeof(float));
+  int* predecessores = (int*)malloc(nvertices * sizeof(int));
+  
+  int origem = 0;
+  dijkstra(g, origem, distancias, predecessores);
+  // Execução do algoritmo de Dijkstra
+
+  printf("Menor caminho a partir do vértice %d:\n", origem);
+
+  int i = 19;
+  printf("Menor distancia do vertice %d ate %d: %.2f\n", origem, i, distancias[i]);
+  printf("Caminho: %d", i);
+  int v = i;
+  while (v != origem) {
+      printf(" <- %d", predecessores[v]);
+      v = predecessores[v];
+    
+  // Liberação da memória do grafo
+  free(distancias);
+  free(predecessores);
+  }
+}

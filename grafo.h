@@ -35,13 +35,13 @@ void g_arestas(Grafo self);
 // as próximas chamadas à g_proxima_aresta devem retornar cada aresta do grafo que parte do vértice origem
 void g_arestas_que_partem(Grafo self, int origem);
 
-
-
 // retorna os dados sobre a próxima aresta de uma consulta
 // retorna true se ok ou false se não tem mais arestas ou se não foi iniciada uma consulta
 // cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
-bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso, int num);
+bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso);
 
+
+float g_peso_aresta(Grafo self, int origem, int destino);
 
 #endif // GRAFO_H

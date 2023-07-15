@@ -7,6 +7,7 @@ typedef struct _vertices *vertices;
 typedef struct _listavertices *listavertices;
 typedef struct _arestas *arestas;
 typedef struct _listaarestas *listaarestas;
+typedef struct _listavisitas *listavisitas;
 
 //Carrega lista de vertices e cria o grafo com n vertices e orientado ou nao
 listavertices carregaVertices(listavertices vertices, const char* nomeArquivo);
@@ -18,6 +19,7 @@ listaarestas lerArquivoArestas(listaarestas arestas, const char* nomeArquivo, li
 //insere lista de arestas no grafo
 void insereListasNoGrafo(Grafo grafo, listaarestas arestas);
 
+void lerArquivoVisitas (listavisitas visitas, char* nomearquivo, listavertices vertices);
 
 //função interna para atualizar a distancia entre dois locais, não é chamada diretamente
 double atualizarDistancia(int origem, int destino, listavertices listaLocais);

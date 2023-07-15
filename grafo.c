@@ -103,7 +103,7 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
     if (self == NULL)
         return false;
 
-    if (self->tipo_consulta == 0) { //consulta
+    if (self->tipo_consulta == 0) { //consulta todas as arestas
         if (!self->consulta_em_andamento || self->arestas_consultadas == self->narestas)
             return false;
 
@@ -159,6 +159,12 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
     return false;
 }
 
+float g_peso_aresta(Grafo self, int origem, int destino) {
+    if (self == NULL)
+        return 0.0;
+
+    return self->matriz_arestas[origem][destino];
+}
 
 
 
