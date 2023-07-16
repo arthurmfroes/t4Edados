@@ -33,11 +33,6 @@ struct _listaarestas {
     struct _listaarestas* prox;
 };
 
-struct _listavisitas {
-    int id;
-    struct _listavisitas* prox;
-};
-
 listavertices carregaVertices(listavertices lista, const char* nomeArquivo) {
     vertices novoVertice = NULL;
     listavertices novoNo = NULL;
@@ -214,63 +209,76 @@ int retornaNumVertices (listavertices listaLocais) {
     return numVertices;
 }
 
-listavisitas lerArquivoVisitas(listavisitas visitas, char* nomearquivo, listavertices vertices) {
+int* lerArquivoVisitas(int* numVisitas, char* nomearquivo, listavertices vertices) {
     FILE* arquivo = fopen(nomearquivo, "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return NULL;
     }
-    
+
     char linha[6];
+    int capacidade = 10; // Capacidade inicial do vetor
+    int* visitas = (int*)malloc(capacidade * sizeof(int));
+    int count = 0; // Contador de visitas
+
     while (fgets(linha, sizeof(linha), arquivo) != NULL) {
         linha[strcspn(linha, "\r\n")] = '\0'; // Remove o caractere de nova linha
-        
+
         // Procura o vértice com o nome correspondente na lista de vértices
         listavertices atual = vertices;
         while (atual != NULL) {
             if (strcmp(atual->local->nome, linha) == 0) {
                 // Encontrou o vértice correspondente
-                listavisitas novo = (listavisitas)malloc(sizeof(struct _listavisitas));
-                novo->id = atual->local->id;
-                novo->prox = NULL;
-                
-                if (visitas == NULL) {
-                    visitas = novo;
-                } else {
-                    listavisitas ultimo = visitas;
-                    while (ultimo->prox != NULL) {
-                        ultimo = ultimo->prox;
+                visitas[count++] = atual->local->id;
+
+                // Redimensiona o vetor se necessário
+                if (count >= capacidade) {
+                    capacidade *= 2;
+                    int* novoVisitas = (int*)realloc(visitas, capacidade * sizeof(int));
+                    if (novoVisitas == NULL) {
+                        printf("Erro ao redimensionar o vetor de visitas.\n");
+                        fclose(arquivo);
+                        free(visitas);
+                        return NULL;
                     }
-                    ultimo->prox = novo;
+                    visitas = novoVisitas;
                 }
-                
+
                 break;
             }
             atual = atual->prox;
         }
-        return visitas;
     }
-    
+
     fclose(arquivo);
-    while (visitas != NULL) {
-        printf("Visita: %d\n", visitas->id);
-        visitas = visitas->prox;
-    }
+    *numVisitas = count;
+    return visitas;
 }
 
-
-int retornaProxVisita(listavisitas visitas) {
-    if (visitas == NULL) {
-        return -1;
+double retornaLatitude (int id, listavertices listaLocais) {
+    listavertices current = listaLocais;
+    while (current != NULL) {
+        if (current->local->id == id)
+            return current->local->latitude;
+        current = current->prox;
     }
-
-    listavisitas temp = visitas;
-    int valor = temp->id;
-
-    visitas = (visitas)->prox;
-    free(temp);
-
-    return valor;
+    return 0.0;
 }
-
-
+double retornaLongitude (int id, listavertices listaLocais) {
+    listavertices current = listaLocais;
+    while (current != NULL) {
+        if (current->local->id == id)
+            return current->local->longitude;
+        current = current->prox;
+    }
+    return 0.0;
+}
+char* retornaNome (int id, listavertices listaLocais) {
+    listavertices current = listaLocais;
+    while (current != NULL) {
+        if (current->local->id == id)
+            return current->local->nome;
+        current = current->prox;
+    }
+    return NULL;
+}
