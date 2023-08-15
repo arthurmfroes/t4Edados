@@ -15,7 +15,6 @@ listavertices carregaVertices(listavertices vertices, const char* nomeArquivo);
 //cria lista de arestas
 listaarestas lerArquivoArestas(listaarestas arestas, const char* nomeArquivo, listavertices vertices);
 
-//insere lista de arestas no grafo
 void insereListasNoGrafo(Grafo grafo, listaarestas arestas);
 
 //função interna para atualizar a distancia entre dois locais, não é chamada diretamente

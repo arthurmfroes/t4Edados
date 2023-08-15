@@ -21,6 +21,8 @@ int g_nvertices(Grafo self);
 //retorna se o grafo é orientado ou não
 bool g_orientado(Grafo self);
 
+float g_dist_aresta(Grafo self, int origem, int destino);
+
 // insere uma aresta no grafo (ou altera o peso de uma aresta já existente)
 void g_ins_aresta(Grafo self, int origem, int destino, float peso);
 
@@ -40,8 +42,5 @@ void g_arestas_que_partem(Grafo self, int origem);
 // cada ponteiro pode ser NULL, para o caso de não se estar interessado na informação associada
 // não se deve inserir ou remover arestas no grafo com uma consulta em andamento
 bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso);
-
-
-float g_peso_aresta(Grafo self, int origem, int destino);
 
 #endif // GRAFO_H

@@ -11,9 +11,9 @@ struct _grafo {
 
     int tipo_consulta;
     int arestas_consultadas;
-    int prox_origem;//nao tenho ctz, verificar
-    int prox_destino;//nao tenho ctz, verificar
-    double prox_aresta;//nao tenho ctz, verificar
+    int prox_origem;
+    int prox_destino;
+    double prox_aresta;
 };
 
 // aloca e inicializa um grafo com n vértices
@@ -58,12 +58,16 @@ bool g_orientado(Grafo self) {
 }
 // insere uma aresta no grafo (ou altera o peso de uma aresta já existente)
 void g_ins_aresta(Grafo self, int origem, int destino, float distancia){
+    if (self->consulta_em_andamento)
+        return;
     self->narestas++;
     self->matriz_arestas[origem][destino] = distancia;
 }
 
 // remove uma aresta do grafo
 void g_rem_aresta(Grafo self, int origem, int destino) {
+    if (self->consulta_em_andamento)
+        return;
     self->matriz_arestas[origem][destino] = 0;
 }
 
@@ -77,14 +81,6 @@ void g_arestas(Grafo self) {
     self->prox_origem = 0;
     self->prox_destino = 0;
     self->prox_aresta = 0.0;
-    printf("%d\n", self->narestas);
-    // for (int i = 0; i < self->nvertices; i++) {
-    //     for (int j = 0; j < self->nvertices; j++) {
-    //         if (self->matriz_arestas[i][j] != 0) {
-    //             //printf("%d %d %f\n", i, j, self->matriz_arestas[i][j]);
-    //         }
-    //     }
-    // }
 }
 
 void g_arestas_que_partem(Grafo self, int origem) {
@@ -107,7 +103,6 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
         if (!self->consulta_em_andamento || self->arestas_consultadas == self->narestas)
             return false;
 
-        // Percorre a matriz de arestas buscando a próxima aresta válida
         for (int i = self->prox_origem; i < self->nvertices; i++) {
             for (int j = self->prox_destino; j < self->nvertices; j++) {
                 if (self->matriz_arestas[i][j] != 0.0) {
@@ -121,10 +116,9 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
                     return true;
                 }
             }
-            self->prox_destino = 0;  // Reinicia a busca para a próxima linha
+            self->prox_destino = 0;
         }
 
-        // Se chegou até aqui, significa que não há mais arestas a serem consultadas
         self->consulta_em_andamento = false;
         self->arestas_consultadas = 0;
         self->tipo_consulta = -1;
@@ -138,8 +132,8 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
 
         while (self->prox_destino < self->nvertices) {
             if (self->matriz_arestas[self->prox_origem][self->prox_destino] != 0.0) {
-                *origem = self->prox_destino;//mudar a ordem, fiz gambiarra
-                *destino = self->prox_origem;//mudar a ordem, fiz gambiarra
+                *origem = self->prox_origem;
+                *destino = self->prox_destino;
                 *peso = self->matriz_arestas[self->prox_origem][self->prox_destino];
                 self->arestas_consultadas++;
                 self->prox_destino++;
@@ -149,7 +143,6 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
             self->prox_destino++;
         }
 
-        // Se chegou até aqui, significa que não há mais arestas a serem consultadas
         self->consulta_em_andamento = false;
         self->arestas_consultadas = 0;
         self->tipo_consulta = -1;
@@ -159,7 +152,7 @@ bool g_proxima_aresta(Grafo self, int *origem, int *destino, float *peso) {
     return false;
 }
 
-float g_peso_aresta(Grafo self, int origem, int destino) {
+float g_dist_aresta(Grafo self, int origem, int destino) {
     if (self == NULL)
         return 0.0;
 

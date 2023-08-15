@@ -20,5 +20,8 @@ int main() {
 
     EncontraMenorCaminho(self, lista_de_vertices);
 
+    g_destroi(self);
+    free(lista_de_vertices);
+    free(lista_de_arestas);
 
 }

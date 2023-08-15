@@ -108,17 +108,17 @@ listaarestas lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo
 
         // Converte os nomes em IDs
         int origemID = -1, destinoID = -1;
-        listavertices current = listaLocais;
-        while (current != NULL) {
-            if (strcmp(current->local->nome, origemStr) == 0)
-                origemID = current->local->id;
-            else if (strcmp(current->local->nome, destinoStr) == 0)
-                destinoID = current->local->id;
+        listavertices atual = listaLocais;
+        while (atual != NULL) {
+            if (strcmp(atual->local->nome, origemStr) == 0)
+                origemID = atual->local->id;
+            else if (strcmp(atual->local->nome, destinoStr) == 0)
+                destinoID = atual->local->id;
 
             if (origemID != -1 && destinoID != -1)
                 break;
 
-            current = current->prox;
+            atual = atual->prox;
         }
         if (origemID != -1 && destinoID != -1) {
             arestas novaAresta = (arestas)malloc(sizeof(struct _arestas));
@@ -133,10 +133,10 @@ listaarestas lerArquivoArestas(listaarestas listaAresta, const char* nomeArquivo
             if (listaAresta == NULL) {
                 listaAresta = novoNo;
             } else {
-                listaarestas current = listaAresta;
-                while (current->prox != NULL)
-                    current = current->prox;
-                current->prox = novoNo;
+                listaarestas atual = listaAresta;
+                while (atual->prox != NULL)
+                    atual = atual->prox;
+                atual->prox = novoNo;
             }
         }
     }
@@ -168,10 +168,10 @@ double atualizarDistancia(int origem, int destino, listavertices listaLocais) {
     double difLon = origemVertice->local->longitude - destinoVertice->local->longitude;
 
     double distNS = difLat * (10000.0 / 90.0); // Distância norte-sul
-    double distEW = difLon * cos(origemVertice->local->latitude) * (10000.0 / 90.0); // Distância leste-oeste
+    double distLO = difLon * cos(origemVertice->local->latitude) * (10000.0 / 90.0); // Distância leste-oeste
 
     // Calcula a distância total como a hipotenusa do triângulo formado
-    double distancia = sqrt(distNS * distNS + distEW * distEW);
+    double distancia = sqrt(distNS * distNS + distLO * distLO);
     return distancia * 1000.0;
 }
 
@@ -201,10 +201,10 @@ void insereListasNoGrafo(Grafo grafo, listaarestas listaArestas) {
 
 int retornaNumVertices (listavertices listaLocais) {
     int numVertices = 0;
-    listavertices current = listaLocais;
-    while (current != NULL) {
+    listavertices atual = listaLocais;
+    while (atual != NULL) {
         numVertices++;
-        current = current->prox;
+        atual = atual->prox;
     }
     return numVertices;
 }
@@ -256,29 +256,29 @@ int* lerArquivoVisitas(int* numVisitas, char* nomearquivo, listavertices vertice
 }
 
 double retornaLatitude (int id, listavertices listaLocais) {
-    listavertices current = listaLocais;
-    while (current != NULL) {
-        if (current->local->id == id)
-            return current->local->latitude;
-        current = current->prox;
+    listavertices atual = listaLocais;
+    while (atual != NULL) {
+        if (atual->local->id == id)
+            return atual->local->latitude;
+        atual = atual->prox;
     }
     return 0.0;
 }
 double retornaLongitude (int id, listavertices listaLocais) {
-    listavertices current = listaLocais;
-    while (current != NULL) {
-        if (current->local->id == id)
-            return current->local->longitude;
-        current = current->prox;
+    listavertices atual = listaLocais;
+    while (atual != NULL) {
+        if (atual->local->id == id)
+            return atual->local->longitude;
+        atual = atual->prox;
     }
     return 0.0;
 }
 char* retornaNome (int id, listavertices listaLocais) {
-    listavertices current = listaLocais;
-    while (current != NULL) {
-        if (current->local->id == id)
-            return current->local->nome;
-        current = current->prox;
+    listavertices atual = listaLocais;
+    while (atual != NULL) {
+        if (atual->local->id == id)
+            return atual->local->nome;
+        atual = atual->prox;
     }
     return NULL;
 }
